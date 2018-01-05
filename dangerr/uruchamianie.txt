@@ -1,0 +1,2 @@
+python wannacry . py - d 89ae1c813fbfeac8334259dc913e2909d06be552d2abcf0826f7ae83ef67abfb 
+hkMay1CSgiYgbLwrV2JrojIK9ZnbAXFT09cXNjNxOmc =

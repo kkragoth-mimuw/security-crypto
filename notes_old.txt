@@ -1,0 +1,148 @@
+28.12.2017
+
+Scrolling through;
+
+Near end of the log there's communication with dst port 1337. Probably sending key to server
+
+destination:
+35.205.64.152 UDP
+344 data
+
+FILTER in wireshark:
+ip.addr == 35.205.64.152 
+
+344 bytes of data except one 340; somewhat data ascending?
+
+attempt of tcp to hackers_pc:22 bad tcp;
+udp worked;
+
+attacked_host? 192.168.240.159
+
+22 UDP PACKETS [counted by hand ~]
+different ports -> 1337;
+maybe new connection for every file?
+check if 22 files ...
+
+ls | wc -l
+      22
+
+ok, just as I thought.
+
+Next steps are to:
+1. Find key in 344 bytes.
+2. Find which udp has to which file key.
+
+
+Let's touch some files:
+'''
+
+Vashi fayly byli zashifrovany.
+Chtoby rasshifrovat' odin fayl, Vam neobkhodimo otpravit' **1.337 ETH**
+na Yetkhereum adres:
+0xC840E516167988D39FBcfF67e4E28738523eC9E3
+V pole data sdelku vvedite Vash adres elektronnoy pochty
+i sleduyushchiy daydzhest Vashego fayla
+0aa0c9f087ebed5698e55c7c4b2c4aee2cbd4384a46f3e4ec8e74d90fef24a56
+Daleye na etot adres vy poluchite klyuch deshifrator i vse neobkhodimyye instruktsii.
+'''
+
+google translate -> 
+'''
+Twoje pliki zostały zaszyfrowane.
+Aby odszyfrować jeden plik, musisz wysłać ** 1,337 ETH **
+na adres Ethereum:
+0xC840E516167988D39FBcfF67e4E28738523eC9E3
+W polu Transakcja danych wpisz swój adres e-mail
+i następne streszczenie twojego pliku
+0aa0c9f087ebed5698e55c7c4b2c4aee2cbd4384a46f3e4ec8e74d90fef24a56
+W dalszej części tego adresu otrzymasz kluczowy dekoder i wszystkie niezbędne instrukcje.
+'''
+
+Okay -> that's probably unique id for each file! this task is easy
+
+Maybe I didn't even need to start with wireshark first. Bad luck.
+
+pythong: len('0aa0c9f087ebed5698e55c7c4b2c4aee2cbd4384a46f3e4ec8e74d90fef24a56')
+64
+
+344 - 32
+344 - 64 = 280
+
+still not 
+
+
+x + 256 = 280
+then x = 24
+'''
+
+extracted string from readmes.txt
+
+ctrl + f 
+ids:
+73172cf83fcc7e4389fc5114b396861fd5a98a6bed83a1b4e3e40205963b5cfe
+9b31e9e050550886f56ee4599b917ef3d5dd5e7045e7183db5efad80dfea6501
+140b1b2dc30b9b6287d533469d761bacc2c72117ec73e24d7ff510e70c70f497
+192dcb849bd3dd02798a1a456ec9e9f49fe6c37cb7813ed4b866967fd7a450f2
+cf057e560b7ae068e0d140dc4f0371961f013a2d45dd18a7b5e9119c7a7d0cfa
+cfd3e3107d3cb7f14309fdc9c561530bf4ca2a34a52bc009b0a653747022c5dc
+c75d8a129752cf44b65e83ea62c745a14c5f423f68b20cf69906b1fe28db8e59
+efbb7c68af68f70b356c536aef44f21a924cd7203f817a9eddf34ef99ed25ae3
+e60259d1d7f9bada51422ef2747969ed9890d8f03b7ad4d09beb203276f611db
+67e1e528c4fe7247ca76f619a955d082fbb976ea434a21fbbfc8ed7344e9eb6c
+83411ac41509efdc1f65b0d3710f94ddb2ddd74cfba40adcd1c13bf24bdc74f4
+fe2888edbf21030d14039661fbe008e34a866f31a2d9e25ff60404c4177de4e6
+c9f80a67ce329a77484884089ec0d73e24f9ab84c4450ff9a3c562c0c37e4870
+d5e7cf26fcd915c54bb4c0bb6dc501809cd4b7971d880f7b9be7f627d4227c42
+0aa0c9f087ebed5698e55c7c4b2c4aee2cbd4384a46f3e4ec8e74d90fef24a56
+b0c5eb20f3e494386d8726dc3aef7c9c976b9ccf08abe6749ae059ee4c62c04b
+d3c2ee6a66b3ddabce1a97f6047460c65cdeb0b317b4a82f3520efc9ba5b6808
+2382ffc8b81ad49bfda24e8f9f585269a4357cb04dd41c48dca620dae4413a83
+157de3e6fae81f79b91bb7d9889782d31211c1be8715a8a4820ebc813821ff74
+95119940cdc526fb50b648636b0acb176e289f329f022c4612a12fa8a831b081
+8a073945c339990f80402047d0c23cfcad8174f1cc9d8c8a9e7ebf6549014cef
+
+all wireshark packets end with 3d3d [==]
+
+OKAY Searching by hand didnt work but...
+There's one empty file and one unique packet with len=340. without 3d3d at the end:
+
+0000   00 50 56 e1 15 6d 00 0c 29 25 57 50 08 00 45 00
+0010   01 70 f3 26 40 00 40 11 30 a9 c0 a8 f0 9f 23 cd
+0020   40 98 cc 0e 05 39 01 5c 17 1b 46 54 5a 2f 48 4a
+0030   41 4b 52 4f 72 64 79 76 35 75 7a 2f 6f 4c 39 39
+0040   64 41 55 33 46 71 76 66 67 62 54 76 6c 78 7a 6d
+0050   63 49 4f 44 51 46 70 30 33 79 78 56 71 4a 76 52
+0060   44 67 59 50 75 66 6e 34 2b 68 77 72 74 64 52 6c
+0070   64 36 47 73 49 58 6b 36 76 61 4d 47 76 77 6d 4a
+0080   38 30 44 7a 76 79 67 68 76 57 69 66 35 52 72 4a
+0090   54 67 66 47 6d 43 36 65 4c 49 42 71 61 4f 68 75
+00a0   4a 6c 67 77 77 54 67 61 65 56 45 65 54 61 2f 49
+00b0   33 57 63 6e 53 63 67 64 52 59 2f 46 67 77 49 4a
+00c0   55 53 39 46 63 37 55 70 30 6d 6f 30 38 70 6a 6d
+00d0   59 73 59 76 48 4d 38 6b 47 2b 46 61 62 61 79 54
+00e0   61 69 47 45 6d 65 70 6b 6f 5a 4b 4b 41 44 32 33
+00f0   57 6f 67 6c 4d 2f 76 31 32 33 6a 71 48 39 47 68
+0100   4e 30 62 32 66 59 66 6a 6c 79 6f 50 67 62 58 49
+0110   73 71 71 57 4d 59 4c 72 75 62 63 75 75 6e 36 43
+0120   6c 70 75 6a 61 63 52 33 5a 50 4d 79 5a 48 76 71
+0130   65 55 4d 45 67 33 35 7a 37 71 4c 6a 31 52 4c 59
+0140   50 46 7a 45 47 50 33 53 42 4b 4e 35 63 66 6f 45
+0150   7a 6c 78 6c 55 35 41 6f 53 76 61 52 64 4d 39 32
+0160   58 33 4e 48 31 69 2b 77 52 34 64 38 6a 57 6d 72
+0170   7a 65 66 50 6f 4c 36 79 51 70 4b 49 62 4c
+
+probably dead end
+
+lets go back to wireshark:
+
+filter: ip.addr == 35.205.64.152 && udp
+
+first two bytes seem to ascend; count index?
+k..lB...F;
+there's duplicate with F so probably dead end
+
+okay so i got stuck and went back to assignment and got bored so checked out the links...
+[laughter]
+
+
+CGtE09xyISrhmWr7WgRnTceFdwqKoBFGIY2E7KrlZ/WqRnEvSXknhafc4Dzza1xBN6/DNO5vATTWEq9bKicepR88EdJg4i60dX2grGrVSGXqbv3JGAWbHeK6P0sLX+S3y/Yr91ra7a0INOfgH8y4ET/le8AWHmsHADvjpDFXVjKLUCobRGwgswHNVq9XY2pP8mRu4tQm+Ur/h5yjTzX1aJRlBngAtZlY6viisLa6vr/Q/O5XCcRwQE4mhW6WgAvboB8VCB9SG9fLN3Dvt9zV3arbGMlEm4qfKKCmYlierPszlHKO6RMcOGyzcIKfnOX5SqfyC4qMme3pXMqa2gpC/w==
